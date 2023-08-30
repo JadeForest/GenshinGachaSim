@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>379</width>
+    <height>256</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>选择卡池UP的物品</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout_2">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <layout class="QFormLayout" name="formLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label51">
+         <property name="text">
+          <string>五星武器1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="box51"/>
+       </item>
+       <item row="2" column="0">
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label41">
+         <property name="text">
+          <string>四星武器1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QComboBox" name="box41"/>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label42">
+         <property name="text">
+          <string>四星武器2</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QComboBox" name="box42"/>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label43">
+         <property name="text">
+          <string>四星武器3</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QComboBox" name="box43"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label52">
+         <property name="text">
+          <string>五星武器2</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="box52"/>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label44">
+         <property name="text">
+          <string>四星武器4</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QComboBox" name="box44"/>
+       </item>
+       <item row="7" column="1">
+        <widget class="QComboBox" name="box45"/>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="label45">
+         <property name="text">
+          <string>四星武器5</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>box51</tabstop>
+  <tabstop>box52</tabstop>
+  <tabstop>box41</tabstop>
+  <tabstop>box42</tabstop>
+  <tabstop>box43</tabstop>
+  <tabstop>box44</tabstop>
+  <tabstop>box45</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>391</x>
+     <y>139</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>201</x>
+     <y>75</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

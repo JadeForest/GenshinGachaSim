@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden
+        }
+
+        #chart {
+            height: 100%;
+            width: 100%;
+            position: absolute
+        }
+
+        #stats {
+            position: fixed;
+            bottom: 0;
+            left: 1;
+            width: 100%;
+        }
+
+        .ftft {
+            visibility: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chart"></div>
+    <div id="stats">
+        <span style="color:purple">四星：<span id="star4pct" title="出紫率">0</span>%</span>
+        <span style="margin-left: 2%; color:goldenrod">五星：<span id="star5pct" title="出金率">0</span>%&nbsp;&nbsp;平均<span id="star5exp" title="出金的平均抽数">0</span>抽</span>
+        <span class="ftft" style="margin-left: 2%; color:coral">无保底金不歪率：<span id="star5ftft" title="不能保证该金是UP，但出了UP的频率">0</span>%</span>
+    </div>
+    <script src="plugin/echarts.min.js"></script>
+    <script>
+        let DICT = {
+            0: '三星',
+            1: '四星角色',
+            2: '四星武器',
+            3: '五星角色',
+            4: '五星武器'
+        }
+        let COLORS = {
+            '三星': '#6495ED',
+            '四星角色': '#32CD32',
+            '四星武器': '#008B8B',
+            '五星角色': '#FFD700',
+            '五星武器': '#FF7F50'
+        }
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('chart'));
+        // 绘制图表
+        let option = {
+            title: {
+                text: '统计信息'
+            },
+            legend: {
+                orient: 'vertical',
+                right: 2,
+                top: 'center',
+                selected:{
+                    '三星': false
+                }
+            },
+            tooltip: {
+
+            },
+            series: [
+                {
+                    type: 'pie',
+                    center: ['40%', '50%'],
+                    stillShowZeroSum: false,
+                    data: [],
+                    radius: '60%',
+                    itemStyle: {
+                        normal: {
+                            color: function (data) {
+                                var colors = COLORS;
+                                return colors[data.name]
+                            }
+                        }
+                    },
+                    tooltip: {
+                        formatter: function (params) {
+                            let text;
+                            text = '<span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:' + params.color + ';"></span>'
+                                + '<span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">' + params.name + '</span>'
+                                + '<span style="float:right;margin-left:10px;font-size:14px;color:#666;font-weight:900">' + params.value + '&nbsp;&nbsp;' + params.percent + '%</span>'
+                            return text;
+                        }
+                    }
+                }
+            ]
+        };
+        myChart.setOption(option);
+        window.onresize = myChart.resize;
+
+        function setData(values) {
+            data = []
+            values.forEach((ele, ind) => {
+                if (ele > 0) {
+                    data.push({
+                        value: ele,
+                        name: DICT[ind],
+                    });
+                }
+            });
+            option.series[0].data = data;
+            myChart.setOption(option);
+
+            let sum = 0;
+            values.forEach(ele => {
+                sum += ele;
+            });
+            let star4pct = (values[1]+values[2])/sum*100;
+            star4pct = star4pct.toFixed(2);
+            let star5pct = (values[3]+values[4])/sum*100;
+            star5pct = star5pct.toFixed(2);
+
+            document.getElementById('star4pct').innerHTML = star4pct.toString();
+            document.getElementById('star5pct').innerHTML = star5pct.toString();
+        }
+
+        function setExp(exp){
+            document.getElementById('star5exp').innerHTML = exp.toString();
+        }
+
+        function setFtFt(ftft){
+            node = document.getElementsByClassName('ftft')[0];
+            node.style.visibility = 'visible';
+
+            document.getElementById('star5ftft').innerHTML = ftft.toString();
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,614 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>882</width>
+    <height>770</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>抽卡模拟器</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QTabWidget" name="tabs">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="tab1">
+         <attribute name="title">
+          <string>角色活动祈愿</string>
+         </attribute>
+         <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="6,3">
+          <property name="spacing">
+           <number>6</number>
+          </property>
+          <item>
+           <layout class="QVBoxLayout" name="outputLayout1" stretch="0,3,3,2,0">
+            <property name="spacing">
+             <number>11</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>**祈愿记录**</string>
+              </property>
+              <property name="textFormat">
+               <enum>Qt::MarkdownText</enum>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="outputTable1"/>
+            </item>
+            <item>
+             <widget class="QListWidget" name="summaryList1"/>
+            </item>
+            <item>
+             <widget class="QWebEngineView" name="chart1" native="true">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="1,5,3,3">
+              <item>
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>已祈愿次数：</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLCDNumber" name="pullNum1">
+                <property name="digitCount">
+                 <number>10</number>
+                </property>
+                <property name="segmentStyle">
+                 <enum>QLCDNumber::Flat</enum>
+                </property>
+                <property name="value" stdset="0">
+                 <double>0.000000000000000</double>
+                </property>
+                <property name="intValue" stdset="0">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="resetPullerBtn1">
+                <property name="text">
+                 <string>重置</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="switchOutputBtn1">
+                <property name="text">
+                 <string>显示详细信息</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QFrame" name="frame">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <property name="spacing">
+              <number>6</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label">
+               <property name="text">
+                <string>**卡池信息**</string>
+               </property>
+               <property name="textFormat">
+                <enum>Qt::MarkdownText</enum>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QTableWidget" name="poolTable1">
+               <row>
+                <property name="text">
+                 <string>新建行</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>新建行</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>新建行</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>新建行</string>
+                </property>
+               </row>
+               <column>
+                <property name="text">
+                 <string>新建列</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>新建列</string>
+                </property>
+               </column>
+               <item row="0" column="0">
+                <property name="text">
+                 <string>UP五星角色：</string>
+                </property>
+               </item>
+               <item row="1" column="0">
+                <property name="text">
+                 <string>UP四星角色1：</string>
+                </property>
+               </item>
+               <item row="2" column="0">
+                <property name="text">
+                 <string>UP四星角色2：</string>
+                </property>
+               </item>
+               <item row="3" column="0">
+                <property name="text">
+                 <string>UP四星角色3：</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="editPoolBtn1">
+               <property name="text">
+                <string>编辑</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="saveBtn1">
+               <property name="toolTip">
+                <string>下次打开时将加载保存的数据</string>
+               </property>
+               <property name="text">
+                <string>保存</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab2">
+         <attribute name="title">
+          <string>武器活动祈愿</string>
+         </attribute>
+         <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="6,3">
+          <property name="spacing">
+           <number>6</number>
+          </property>
+          <item>
+           <layout class="QVBoxLayout" name="outputLayout2" stretch="0,3,3,2,0">
+            <property name="spacing">
+             <number>11</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>**祈愿记录**</string>
+              </property>
+              <property name="textFormat">
+               <enum>Qt::MarkdownText</enum>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="outputTable2"/>
+            </item>
+            <item>
+             <widget class="QListWidget" name="summaryList2"/>
+            </item>
+            <item>
+             <widget class="QWebEngineView" name="chart2" native="true">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="1,5,3,3">
+              <item>
+               <widget class="QLabel" name="label_6">
+                <property name="text">
+                 <string>已祈愿次数：</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLCDNumber" name="pullNum2">
+                <property name="digitCount">
+                 <number>10</number>
+                </property>
+                <property name="segmentStyle">
+                 <enum>QLCDNumber::Flat</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="resetPullerBtn2">
+                <property name="text">
+                 <string>重置</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="switchOutputBtn2">
+                <property name="text">
+                 <string>显示详细信息</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QFrame" name="frame2">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,10,1,1,1">
+             <property name="spacing">
+              <number>6</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_4">
+               <property name="text">
+                <string>**卡池信息**</string>
+               </property>
+               <property name="textFormat">
+                <enum>Qt::MarkdownText</enum>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QTableWidget" name="poolTable2">
+               <row>
+                <property name="text">
+                 <string>新建行</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>新建行</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>新建行</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>新建行</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>新建行</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>新建行</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>新建行</string>
+                </property>
+               </row>
+               <column>
+                <property name="text">
+                 <string>新建列</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>新建列</string>
+                </property>
+               </column>
+               <item row="0" column="0">
+                <property name="text">
+                 <string>UP五星武器1：</string>
+                </property>
+               </item>
+               <item row="1" column="0">
+                <property name="text">
+                 <string>UP五星武器2：</string>
+                </property>
+               </item>
+               <item row="2" column="0">
+                <property name="text">
+                 <string>UP四星武器1：</string>
+                </property>
+               </item>
+               <item row="3" column="0">
+                <property name="text">
+                 <string>UP四星武器2：</string>
+                </property>
+               </item>
+               <item row="4" column="0">
+                <property name="text">
+                 <string>UP四星武器3：</string>
+                </property>
+               </item>
+               <item row="5" column="0">
+                <property name="text">
+                 <string>UP四星武器4：</string>
+                </property>
+               </item>
+               <item row="6" column="0">
+                <property name="text">
+                 <string>UP四星武器5：</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="1,0,10,1">
+               <item>
+                <widget class="QLabel" name="path">
+                 <property name="text">
+                  <string>神铸定轨：</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="pathValue">
+                 <property name="text">
+                  <string>0/2</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="pathBox"/>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pathBtn">
+                 <property name="maximumSize">
+                  <size>
+                   <width>40</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>确认</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QPushButton" name="editPoolBtn2">
+               <property name="text">
+                <string>编辑</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="saveBtn2">
+               <property name="toolTip">
+                <string>下次打开时将加载保存的数据</string>
+               </property>
+               <property name="text">
+                <string>保存</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab3">
+         <attribute name="title">
+          <string>常驻祈愿</string>
+         </attribute>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <layout class="QVBoxLayout" name="outputLayout3" stretch="0,3,3,2,0">
+            <property name="spacing">
+             <number>11</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>**祈愿记录**</string>
+              </property>
+              <property name="textFormat">
+               <enum>Qt::MarkdownText</enum>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="outputTable3"/>
+            </item>
+            <item>
+             <widget class="QListWidget" name="summaryList3"/>
+            </item>
+            <item>
+             <widget class="QWebEngineView" name="chart3" native="true">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="1,5,3,3">
+              <item>
+               <widget class="QLabel" name="label_8">
+                <property name="text">
+                 <string>已祈愿次数：</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLCDNumber" name="pullNum3">
+                <property name="digitCount">
+                 <number>10</number>
+                </property>
+                <property name="segmentStyle">
+                 <enum>QLCDNumber::Flat</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="resetPullerBtn3">
+                <property name="text">
+                 <string>重置</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="switchOutputBtn3">
+                <property name="text">
+                 <string>显示详细信息</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QPushButton" name="aboutBtn">
+          <property name="text">
+           <string>关于</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="onePullBtn">
+          <property name="text">
+           <string>祈愿1次</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="tenPullBtn">
+          <property name="text">
+           <string>祈愿10次</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="customPullsSpinbox">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>1000</number>
+          </property>
+          <property name="value">
+           <number>20</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="customPullsBtn">
+          <property name="text">
+           <string>祈愿自定义次数</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>882</width>
+     <height>26</height>
+    </rect>
+   </property>
+  </widget>
+  <action name="action111">
+   <property name="text">
+    <string>111</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QWebEngineView</class>
+   <extends>QWidget</extends>
+   <header>PySide2.QtWebEngineWidgets</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
