@@ -42,8 +42,8 @@ class Item:
 
 
 class RateUpItem(Item):
-    def __init__(self, pull_count, pity) -> None:
-        super().__init__(pull_count)
+    def __init__(self, pull_count, pity, *args, **kwargs) -> None:
+        super().__init__(pull_count, *args, **kwargs)
         self.isup = self._is_upitem(pity)
 
     def _is_upitem(self, pity):
@@ -87,12 +87,30 @@ class Star5Item(Item):
         if pull_count >= 90:
             return 1
         return 0.006 + (pull_count-73)*0.06
+    
 
+class CustomItem(Item):
+    custom_prob = 0.01
+
+    def __init__(self, pull_count, *args, **kwargs) -> None:
+        super().__init__(pull_count, *args, **kwargs)
+        self.prob = self.custom_prob
+
+    @classmethod
+    def set_custom_prob(cls, prob):
+        cls.custom_prob = prob
+
+
+class Star5ItemCustom(Star5Item, CustomItem):
+    pass
 
 class UPStar4Item(Star4Item, RateUpItem):
     pass
 
 class UPStar5Item(Star5Item, RateUpItem):
+    pass
+
+class UPStar5ItemCustom(Star5ItemCustom, RateUpItem):
     pass
 
 
@@ -294,6 +312,8 @@ class WeaponBannerPuller(RateUpPuller):
 if __name__ == '__main__':
     puller = StandardBannerPuller()
     banner1 = StandardBanner()
+    Star5ItemCustom.set_custom_prob(0.1)
+    puller.items[5] = Star5ItemCustom
     puller.set_banner(banner1)
     for i in puller.multiple_pull(100):
         if i[1].rank != '***':

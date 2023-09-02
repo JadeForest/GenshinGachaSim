@@ -55,7 +55,7 @@
              <widget class="QListWidget" name="summaryList1"/>
             </item>
             <item>
-             <widget class="QWebEngineView" name="chart1" native="true">
+             <widget class="QWebEngineView" name="chart1">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -238,7 +238,7 @@
              <widget class="QListWidget" name="summaryList2"/>
             </item>
             <item>
-             <widget class="QWebEngineView" name="chart2" native="true">
+             <widget class="QWebEngineView" name="chart2">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -476,7 +476,7 @@
              <widget class="QListWidget" name="summaryList3"/>
             </item>
             <item>
-             <widget class="QWebEngineView" name="chart3" native="true">
+             <widget class="QWebEngineView" name="chart3">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -529,6 +529,13 @@
          <widget class="QPushButton" name="aboutBtn">
           <property name="text">
            <string>关于</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="advBtn">
+          <property name="text">
+           <string>高级</string>
           </property>
          </widget>
         </item>
@@ -605,7 +612,7 @@
   <customwidget>
    <class>QWebEngineView</class>
    <extends>QWidget</extends>
-   <header>PySide2.QtWebEngineWidgets</header>
+   <header location="global">QtWebEngineWidgets/QWebEngineView</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

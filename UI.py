@@ -7,11 +7,10 @@ from collections import Counter
 from PyQt5 import uic
 from PyQt5.QtCore import QUrl, pyqtSignal
 from PyQt5.QtWebEngineWidgets import QWebEngineSettings, QWebEngineView
-from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView, QMessageBox,
+from PyQt5.QtWidgets import (QDialog, QHeaderView, QMessageBox,
                              QTableWidgetItem, QAbstractItemView)
 
-from core import (CharacterBanner, CharacterBannerPuller, StandardBanner,
-                  StandardBannerPuller, WeaponBanner, WeaponBannerPuller)
+from core import *
 from data import *
 from tools import *
 from UI import *
@@ -40,6 +39,8 @@ class MainWindowControl:
         # init banners
         for i,_ in enumerate(self.pullers):
             self.setBanner(i)
+        # set custom config
+        self.custom_conf = (False, 0.6) # in percentage
 
     def initWindow(self):
         ui = uic.loadUi(r'ui\mainwindow.ui')
@@ -85,6 +86,7 @@ class MainWindowControl:
         self.ui.tenPullBtn.clicked.connect(lambda: self.doMultiplePulls(10))
         self.ui.customPullsBtn.clicked.connect(lambda: self.doMultiplePulls(int(self.ui.customPullsSpinbox.text())))
         self.ui.aboutBtn.clicked.connect(self.about)
+        self.ui.advBtn.clicked.connect(self.advance)
         # connect tabs
         self.ui.tabs.currentChanged.connect(self.changeTab)
 
@@ -259,9 +261,27 @@ class MainWindowControl:
         self.dialog.ui.exec_()
 
     def about(self):
-        msg = '原神抽卡模拟器\nGenshin GachaSim\nby JadeForest(https://github.com/JadeForest)'
+        msg = '原神抽卡模拟器\nGenshin GachaSim\nv{}\nGithub https://github.com/JadeForest/GenshinGachaSim'.format(VERSION)
         QMessageBox.information(None, '关于', msg)
-        
+
+    def advance(self):
+        settingWin = AdvancedSettingControl(self.custom_conf)
+        settingWin.sig.connect(self.setCustom)
+        settingWin.ui.exec_()
+
+    def setCustom(self, set_custom: bool, custom_rate):
+        self.custom_conf = (set_custom, custom_rate)
+        if set_custom:
+            UPStar5ItemCustom.set_custom_prob(custom_rate*0.01)
+            Star5ItemCustom.set_custom_prob(custom_rate*0.01)
+            custom_items = (UPStar5ItemCustom, UPStar5ItemCustom, Star5ItemCustom)
+            for i,puller in enumerate(self.pullers):
+                puller.items[5] = custom_items[i]
+        else:
+            default_items = (UPStar5Item, UPStar5Weapon, Star5Item)
+            for i,puller in enumerate(self.pullers):
+                puller.items[5] = default_items[i]
+
         
 class DialogControl(QDialog):
     uipath: str = None
@@ -271,11 +291,11 @@ class DialogControl(QDialog):
 
     def __init__(self, curr_lists=None) -> None:
         super().__init__()
-        self.ui = self.initUI(curr_lists)
+        self.ui = uic.loadUi(self.uipath)
+        self.initUI(curr_lists)
 
     def initUI(self, curr_lists=None):
-        ui = uic.loadUi(self.uipath)
-        ui.buttonBox.accepted.connect(self.accept)
+        self.ui.buttonBox.accepted.connect(self.accept)
         
         for i,box in enumerate(self.boxes[:self.seg]):
             box.addItems(self.data.names[5])
@@ -284,8 +304,6 @@ class DialogControl(QDialog):
         for i,box in enumerate(self.boxes[self.seg:]):
             box.addItems(self.data.names[4])
             box.setCurrentText(curr_lists[4][i][0])
-
-        return ui
 
     def accept(self):
         ret = {
@@ -322,3 +340,25 @@ class WpDialogControl(DialogControl):
     def boxes(self):
         return (self.ui.box51, self.ui.box52,
                 self.ui.box41, self.ui.box42, self.ui.box43, self.ui.box44, self.ui.box45)
+    
+
+class AdvancedSettingControl(QDialog):
+    sig: pyqtSignal = pyqtSignal(bool,float)
+
+    def __init__(self, config: tuple) -> None:
+        super().__init__()
+        self.ui = uic.loadUi(r'ui\advanced.ui')
+        self.initUI(*config)
+
+    def initUI(self, set_custom: bool, custom_rate):
+        self.ui.buttonBox.accepted.connect(self.accept)
+
+        if set_custom:
+            self.ui.checkBox.setChecked(True)
+            self.ui.spinBox.setValue(custom_rate)
+
+    def accept(self):
+        set_custom = self.ui.checkBox.isChecked()
+        custom_rate = self.ui.spinBox.value()
+        self.sig.emit(set_custom, custom_rate)
+        self.ui.close()

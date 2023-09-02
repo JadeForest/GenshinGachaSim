@@ -1,5 +1,7 @@
 from PyQt5.QtGui import QColor
 
+VERSION = '0.2.3'
+
 VIOLET = QColor('#EE82EE')
 GOLD = QColor('#FFD700')
 

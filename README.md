@@ -18,3 +18,9 @@
 
 [Apache Echarts](https://github.com/apache/echarts)
 
+
+
+#### v0.2.3新增 (02,Sept,2023)
+
+- 高级功能：自定义5星物品出率。 Customize 5-star probability.
+
