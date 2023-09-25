@@ -140,6 +140,7 @@ class MainWindowControl:
         rateups = self.puller.get_banner_rateups()
         if name != UNPATHED:
             self.setBanner(1, rateups, path_name=name)
+            self.poolTable.setRowCount(7)
             addRows([['当前定轨：',name]],self.poolTable)
         else:
             self.setBanner(1, rateups)
