@@ -10,10 +10,11 @@ from PyQt5.QtWebEngineWidgets import QWebEngineSettings, QWebEngineView
 from PyQt5.QtWidgets import (QDialog, QHeaderView, QMessageBox,
                              QTableWidgetItem, QAbstractItemView)
 
-from core import *
+from core import (CharacterBannerPuller, WeaponBannerPuller, StandardBannerPuller,
+                  CharacterBanner, WeaponBanner, StandardBanner,
+                  Star5ItemCustom, Star5Item, UPStar5ItemCustom, UPStar5Item, UPStar5Weapon)
 from data import *
 from tools import *
-from UI import *
 from consts import *
 
 
