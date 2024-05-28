@@ -14,8 +14,7 @@ from core import (CharacterBannerPuller, WeaponBannerPuller, StandardBannerPulle
                   CharacterBanner, WeaponBanner, StandardBanner,
                   Star5ItemCustom, Star5Item, UPStar5ItemCustom, UPStar5Item, UPStar5Weapon)
 from data import *
-from tools import *
-from consts import *
+from util import *
 
 
 class MainWindowControl:
@@ -45,7 +44,7 @@ class MainWindowControl:
 
     def initWindow(self):
         ui = uic.loadUi(r'ui\mainwindow.ui')
-    
+
         poolTables = [ui.poolTable1, ui.poolTable2]
         for table in poolTables:
             table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -113,15 +112,13 @@ class MainWindowControl:
             self.switchOutputBtn.setText('显示详细信息')
             return
 
-    def setBanner(self, i, rateups=None, *args, **kwargs):
+    def setBanner(self, i, rateups=None):
         if i == 2:
             self.pullers[i].set_banner(self.bannerClasses[i]())
             return
         if not rateups:
             rateups = SavedPool(i).get()
         banner = self.bannerClasses[i](rateups)
-        if i == 1 and kwargs:
-            banner.set_path(kwargs['path_name'])
         self.pullers[i].set_banner(banner)
         rateuplist = rateups[5]+rateups[4]
         for index,item in enumerate(rateuplist):
@@ -132,19 +129,19 @@ class MainWindowControl:
             self.ui.pathBox.addItems([UNPATHED]+DataList.flatData(rateups[5]))
 
     def saveConf(self,i):
-        SavedPool(i).save(self.puller.get_banner_rateups())
+        SavedPool(i).save(self.puller.banner.rateups)
         QMessageBox.information(self.ui, '提示', '已保存该卡池信息。')
 
     def setWpPath(self, name):
         name = self.ui.pathBox.currentText()
-        self.puller.reset_banner_path()
-        rateups = self.puller.get_banner_rateups()
+        if name == self.puller.banner.path:
+            return
         if name != UNPATHED:
-            self.setBanner(1, rateups, path_name=name)
+            self.puller.banner.set_path(name)
             self.poolTable.setRowCount(7)
             addRows([['当前定轨：',name]],self.poolTable)
         else:
-            self.setBanner(1, rateups)
+            self.puller.banner.reset_path()
             self.poolTable.setRowCount(7)
         self.ui.pathBox.setCurrentText(name)
         self.ui.pathValue.setText('0/2')
@@ -177,13 +174,13 @@ class MainWindowControl:
         if index == 1:
             self.poolTable = self.ui.poolTable2
             self.editPoolBtn = self.ui.editPoolBtn2
-    
+
     def resetPuller(self):
         i = self.CURRTAB
         msg = QMessageBox.question(self.ui,'提示','会清空该祈愿所有记录，确认重置？',QMessageBox.Ok|QMessageBox.Cancel,QMessageBox.Cancel)
         if msg == QMessageBox.Cancel:
             return
-        rateups = self.puller.get_banner_rateups() if i!=2 else None
+        rateups = self.puller.banner.rateups if i != 2 else None
         self.pullers[i] = self.pullerClasses[i]()
         self.puller = self.pullers[i]
         self.setBanner(i, rateups)
@@ -256,9 +253,9 @@ class MainWindowControl:
 
     def chooseDialog(self, type):
         if type == 0:
-            self.dialog = ChDialogControl(self.puller.get_banner_rateups())
+            self.dialog = ChDialogControl(self.puller.banner.rateups)
         elif type == 1:
-            self.dialog = WpDialogControl(self.puller.get_banner_rateups())
+            self.dialog = WpDialogControl(self.puller.banner.rateups)
         self.dialog.sig.connect(self.setBanner)
         self.dialog.ui.exec_()
 
@@ -284,7 +281,7 @@ class MainWindowControl:
             for i,puller in enumerate(self.pullers):
                 puller.items[5] = default_items[i]
 
-        
+
 class DialogControl(QDialog):
     uipath: str = None
     data: DataList = None
@@ -337,12 +334,12 @@ class WpDialogControl(DialogControl):
     seg = 2
     type = 1
     data = DataList(W5S, W5L, W4S, W4L)
-   
+
     @property
     def boxes(self):
         return (self.ui.box51, self.ui.box52,
                 self.ui.box41, self.ui.box42, self.ui.box43, self.ui.box44, self.ui.box45)
-    
+
 
 class AdvancedSettingControl(QDialog):
     sig: pyqtSignal = pyqtSignal(bool,float)

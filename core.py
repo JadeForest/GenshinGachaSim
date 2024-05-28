@@ -6,8 +6,14 @@ Items, Banners, BannerPullers
 import random
 
 from data import C4, W4S, C5S, W5S, DataList
-from consts import _STAR, UNPATHED, WP
-from proba import get
+from util import _STAR, UNPATHED, WP
+
+
+def get(prob: float) -> bool:
+    "probability of getting an item"
+    assert 0 <= prob <= 1, "Invalid probability."
+    rand = random.random()
+    return True if rand <= 1 * prob else False
 
 
 class Item:
@@ -152,14 +158,18 @@ class StandardBanner(Banner):
 class RateUpBanner(Banner):
     def __init__(self, rateups, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.rateups = rateups
+        self._rateups = rateups
+
+    @property
+    def rateups(self) -> dict[int, list[tuple[str, str]]]:
+        return self._rateups
 
     def pick_rateup(self, rank, item: RateUpItem):
         if item.isup:
-            item.name, item.type = random.choice(self.rateups[rank])
+            item.name, item.type = random.choice(self._rateups[rank])
         else:
             pick = random.choice(self.pool[rank])
-            if pick in self.rateups[rank]:
+            if pick in self._rateups[rank]:
                 item.isup = True
             item.name, item.type = pick
         return item
@@ -178,11 +188,16 @@ class WeaponBanner(RateUpBanner):
         # Epitome Path
         self.reset_path()
 
+    @property
+    def path(self) -> str:
+        return self._path
+
     def set_path(self, value: str):
         assert value in [UNPATHED] + [
-            e[0] for e in self.rateups[5]
+            e[0] for e in self._rateups[5]
         ], "Not a valid Epitome Path!"
         self._path = value
+        self._path_value = 0
 
     def reset_path(self):
         self._path = None
@@ -209,6 +224,10 @@ class Puller:
     def __init__(self, banner=None, count=1, star4count=1, star5count=1) -> None:
         self._banner = banner
         self.counts = {5: star5count, 4: star4count, 0: count}
+
+    @property
+    def banner(self) -> Banner:
+        return self._banner
 
     def set_banner(self, banner: Banner):
         assert isinstance(
@@ -270,9 +289,6 @@ class RateUpPuller(Puller):
             self.pitys[5],
         )
 
-    def get_banner_rateups(self) -> dict:
-        return self._banner.rateups
-
     def _pull_item(self, rank) -> RateUpItem:
         item: Item = self.items[rank](self.counts[rank] - 1, self.pitys[rank]).pull()
         if item:
@@ -289,9 +305,6 @@ class CharacterBannerPuller(RateUpPuller):
 class WeaponBannerPuller(RateUpPuller):
     required_banner_type = WeaponBanner
     items = {5: UPStar5Weapon, 4: UPStar4Weapon, 3: Star3Item}
-
-    def reset_banner_path(self):
-        self._banner.reset_path()
 
     def info(self) -> tuple:
         return (

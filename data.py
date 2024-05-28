@@ -1,10 +1,11 @@
 """
 Gacha Items Data
 """
+
 import json
 from dataclasses import dataclass
 
-from consts import CH, WP
+from util import CH, WP
 
 
 @dataclass
@@ -25,19 +26,26 @@ W5S = _Code("5StarWeapons_Std.txt", 5, WP)
 
 class DataList:
     def __init__(self, *args) -> None:
-        self.lists = {4: [], 5: []}
+        self.lists = None
         for code in args:
-            assert isinstance(code, _Code), f"Variable {code} is not a valid code!"
+            assert isinstance(code, _Code), f"{code} is not valid!"
+        self.codes = args
+
+    def _load(self):
+        self.lists = {4: [], 5: []}
+        for code in self.codes:
             with open("data\\" + code.file, "r", encoding="utf-8") as file:
                 lt = list(map(lambda s: [s.rstrip("\n"), code.type], file.readlines()))
                 self.lists[code.rank].extend(lt)
 
     @property
     def data(self):
+        self._load() if self.lists is None else None
         return self.lists
 
     @property
     def names(self):
+        self._load() if self.lists is None else None
         return self.flatData(self.lists)
 
     @staticmethod
@@ -50,32 +58,45 @@ class DataList:
 
 
 class SavedPool:
-    def __init__(self, rank: int) -> None:
-        self.rank = rank
+    pool_file = r"config\defaultPools.json"
+
+    def __init__(self, pool_id: int) -> None:
+        self.pool_id = pool_id
 
     def get(self):
-        with open(r"config\defaultPools.json", "r", encoding="utf-8") as js:
+        with open(self.pool_file, "r", encoding="utf-8") as js:
             return json.load(
                 js, object_hook=lambda d: {int(k): v for k, v in d.items()}
-            )[self.rank]
+            )[self.pool_id]
 
     def save(self, d: dict):
-        with open(r"config\defaultPools.json", "r", encoding="utf-8") as js:
+        with open(self.pool_file, "r", encoding="utf-8") as js:
             data = json.load(
                 js, object_hook=lambda d: {int(k): v for k, v in d.items()}
             )
-            data[self.rank] = d
+            data[self.pool_id] = d
 
-        with open(r"config\defaultPools.json", "w", encoding="utf-8") as js:
+        with open(self.pool_file, "w", encoding="utf-8") as js:
             json.dump(data, js, ensure_ascii=False)
 
 
-# if __name__ == '__main__':
-#     SavedPool(0).save({
-#                 5: [('枫原万叶','角色')],
-#                 4: [('瑶瑶','角色'),('香菱','角色'),('鹿野院平藏','角色')]
-#             })
-#     SavedPool(1).save({
-#         5: [('苍古自由之誓','武器'),('裁叶翠光','武器')],
-#         4: [('曚云之月','武器'),('断浪长鳍','武器'),('西风剑','武器'),('祭礼大剑','武器'),('西风秘典','武器')]
-#     })
+class SavedChroniclePool:
+    pool_file = r"config\chroniclePool.json"
+
+    @classmethod
+    def get(cls):
+        with open(cls.pool_file, "r", encoding="utf-8") as js:
+            return json.load(
+                js, object_hook=lambda d: {int(k): v for k, v in d.items()}
+            )
+
+    @classmethod
+    def save(cls, d: dict):
+        with open(cls.pool_file, "w", encoding="utf-8") as js:
+            json.dump(d, js, ensure_ascii=False)
+
+
+if __name__ == "__main__":
+    d = {0: {}, 1: {}}
+
+    SavedChroniclePool.save()
