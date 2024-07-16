@@ -112,21 +112,26 @@ class MainWindowControl:
             self.switchOutputBtn.setText('显示详细信息')
             return
 
-    def setBanner(self, i, rateups=None):
+    def setBanner(self, i, rateups=None, path=UNPATHED):
+        keep_path = path != UNPATHED
         if i == 2:
             self.pullers[i].set_banner(self.bannerClasses[i]())
             return
         if not rateups:
             rateups = SavedPool(i).get()
-        banner = self.bannerClasses[i](rateups)
+        if i == 1 and keep_path:
+            banner = self.bannerClasses[i](rateups, path=path)
+        else:
+            banner = self.bannerClasses[i](rateups)
         self.pullers[i].set_banner(banner)
         rateuplist = rateups[5]+rateups[4]
         for index,item in enumerate(rateuplist):
             poolTables = [self.ui.poolTable1, self.ui.poolTable2]
             poolTables[i].setItem(index,1,QTableWidgetItem(item[0]))
-        if i == 1:
+        if i == 1 and not keep_path:
             self.ui.pathBox.clear()
             self.ui.pathBox.addItems([UNPATHED]+DataList.flatData(rateups[5]))
+            
 
     def saveConf(self,i):
         SavedPool(i).save(self.puller.banner.rateups)
@@ -134,7 +139,7 @@ class MainWindowControl:
 
     def setWpPath(self, name):
         name = self.ui.pathBox.currentText()
-        if name == self.puller.banner.path:
+        if name == self.puller.banner.get_path()[0]:
             return
         if name != UNPATHED:
             self.puller.banner.set_path(name)
@@ -144,7 +149,6 @@ class MainWindowControl:
             self.puller.banner.reset_path()
             self.poolTable.setRowCount(7)
         self.ui.pathBox.setCurrentText(name)
-        self.ui.pathValue.setText('0/2')
 
     def changeTab(self, index):
         self.CURRTAB = index
@@ -177,13 +181,16 @@ class MainWindowControl:
 
     def resetPuller(self):
         i = self.CURRTAB
-        msg = QMessageBox.question(self.ui,'提示','会清空该祈愿所有记录，确认重置？',QMessageBox.Ok|QMessageBox.Cancel,QMessageBox.Cancel)
+        msg = QMessageBox.question(
+            self.ui, '提示', '会清空该祈愿所有记录，确认重置？' + ('（不会重置定轨）' if i == 1 else ''),
+            QMessageBox.Ok|QMessageBox.Cancel, QMessageBox.Ok)
         if msg == QMessageBox.Cancel:
             return
+        path = self.puller.banner.get_path()[0] if i == 1 else UNPATHED
         rateups = self.puller.banner.rateups if i != 2 else None
         self.pullers[i] = self.pullerClasses[i]()
         self.puller = self.pullers[i]
-        self.setBanner(i, rateups)
+        self.setBanner(i, rateups, path)
         if i != 2:
             self.star5xbdNums[i] = 0
             self.star5xbdwaileNums[i] = 0
@@ -192,8 +199,9 @@ class MainWindowControl:
         self.summaryList.clear()
         self.pullNum.display(0)
         self.chart.load(QUrl('file:///web/chart.html'))
-        if self.CURRTAB == 1:
-            self.setWpPath(UNPATHED)
+        if i == 1:
+            self.setWpPath(path)
+            self.ui.pathValue.setText('0/2')
 
     def doMultiplePulls(self, count):
         table_rows = []
@@ -206,12 +214,13 @@ class MainWindowControl:
             if item.rank != 3:
                 star5count = info[2] if self.CURRTAB==2 else info[3]
                 waile = self.isNotBid(item.rank)
-                waiMark = '\t(歪)' if waile else ''
+                waiMark = '\t(歪)' if waile else '\t'
+                waiMark += '(非定轨)' if self.CURRTAB==1 and self.puller.info()[-1]>info[-1] else ''
                 if item.rank == 4:
                     cntMark = ''
                     color = VIOLET
                 else:
-                    cntMark = f'[{star5count}]'
+                    cntMark = f'[{star5count}]'+(f'[{info[-1]}]' if self.CURRTAB==1 else '')
                     color = GOLD
                     if self.CURRTAB!=2 and (info[4]==0 and info[-1]<2): #xiao bao di
                         if waile:

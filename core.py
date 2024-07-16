@@ -187,10 +187,11 @@ class WeaponBanner(RateUpBanner):
         self.pool.update(DataList(C4, W4S, W5S).data)
         # Epitome Path
         self.reset_path()
+        if 'path' in kwargs:
+            self.set_path(kwargs['path'])
 
-    @property
-    def path(self) -> str:
-        return self._path
+    def get_path(self) -> str:
+        return self._path, self._path_value
 
     def set_path(self, value: str):
         assert value in [UNPATHED] + [
@@ -313,13 +314,8 @@ class WeaponBannerPuller(RateUpPuller):
             self.pitys[4],
             self.counts[5],
             self.pitys[5],
-            self._banner._path_value,
+            self._banner.get_path()[1],
         )
-
-    # def pull(self):
-    #     print(self._banner._path_value)
-    #     return super().pull()
-
 
 ###=======================testrun========================###
 if __name__ == "__main__":
