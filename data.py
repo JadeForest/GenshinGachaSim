@@ -26,27 +26,35 @@ W5S = _Code("5StarWeapons_Std.txt", 5, WP)
 
 class DataList:
     def __init__(self, *args) -> None:
-        self.lists = None
+        self.dict = None
         for code in args:
             assert isinstance(code, _Code), f"{code} is not valid!"
-        self.codes = args
+        self.codes: tuple[_Code] = args
 
     def _load(self):
-        self.lists = {4: [], 5: []}
+        self.dict = {4: [], 5: []}
         for code in self.codes:
             with open("data\\" + code.file, "r", encoding="utf-8") as file:
-                lt = list(map(lambda s: [s.rstrip("\n"), code.type], file.readlines()))
-                self.lists[code.rank].extend(lt)
+                lt = list(map(lambda s: (s.rstrip("\n"), code.type), file.readlines()))
+                self.dict[code.rank].extend(lt)
 
     @property
     def data(self):
-        self._load() if self.lists is None else None
-        return self.lists
+        self._load() if self.dict is None else None
+        return self.dict
 
     @property
     def names(self):
-        self._load() if self.lists is None else None
-        return self.flatData(self.lists)
+        self._load() if self.dict is None else None
+        return self.flatData(self.dict)
+
+    @staticmethod
+    def exclude(data: dict[int, list], exclude: dict[int, list]) -> dict[int, list]:
+        assert (
+            exclude.keys() <= data.keys()
+        ), "Exclude keys must be a subset of data keys."
+        updated = {k: list(set(data[k]) - set(ex)) for k, ex in exclude.items()}
+        return data.update(updated)
 
     @staticmethod
     def flatData(data):
@@ -66,7 +74,11 @@ class SavedPool:
     def get(self):
         with open(self.pool_file, "r", encoding="utf-8") as js:
             return json.load(
-                js, object_hook=lambda d: {int(k): v for k, v in d.items()}
+                js,
+                object_hook=lambda d: {
+                    int(k): [tuple(t) for t in v] if type(v) == list else v
+                    for k, v in d.items()
+                },
             )[self.pool_id]
 
     def save(self, d: dict):

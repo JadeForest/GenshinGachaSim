@@ -10,9 +10,14 @@ from PyQt5.QtWebEngineWidgets import QWebEngineSettings, QWebEngineView
 from PyQt5.QtWidgets import (QDialog, QHeaderView, QMessageBox,
                              QTableWidgetItem, QAbstractItemView)
 
-from core import (CharacterBannerPuller, WeaponBannerPuller, StandardBannerPuller,
-                  CharacterBanner, WeaponBanner, StandardBanner,
-                  Star5ItemCustom, Star5Item, UPStar5ItemCustom, UPStar5Item, UPStar5Weapon)
+from core import (
+    CharacterBannerPuller,
+    WeaponBannerPuller,
+    StandardBannerPuller,
+    CharacterBanner,
+    WeaponBanner,
+    StandardBanner,
+)
 from data import *
 from util import *
 
@@ -80,13 +85,14 @@ class MainWindowControl:
         self.ui.editPoolBtn2.clicked.connect(lambda: self.chooseDialog(1))
         self.ui.saveBtn1.clicked.connect(lambda: self.saveConf(0))
         self.ui.saveBtn2.clicked.connect(lambda: self.saveConf(1))
-        self.ui.pathBtn.clicked.connect(self.setWpPath)
+        self.ui.pathBtn.clicked.connect(
+            lambda: self.setWpPath(self.ui.pathBox.currentText())
+        )
         # connect universal btns
         self.ui.onePullBtn.clicked.connect(lambda: self.doMultiplePulls(1))
         self.ui.tenPullBtn.clicked.connect(lambda: self.doMultiplePulls(10))
         self.ui.customPullsBtn.clicked.connect(lambda: self.doMultiplePulls(int(self.ui.customPullsSpinbox.text())))
         self.ui.aboutBtn.clicked.connect(self.about)
-        self.ui.advBtn.clicked.connect(self.advance)
         # connect tabs
         self.ui.tabs.currentChanged.connect(self.changeTab)
 
@@ -112,14 +118,13 @@ class MainWindowControl:
             self.switchOutputBtn.setText('显示详细信息')
             return
 
-    def setBanner(self, i, rateups=None, path=UNPATHED):
-        keep_path = path != UNPATHED
+    def setBanner(self, i, rateups=None, path=None):
         if i == 2:
             self.pullers[i].set_banner(self.bannerClasses[i]())
             return
-        if not rateups:
+        if rateups is None:
             rateups = SavedPool(i).get()
-        if i == 1 and keep_path:
+        if i == 1 and path is not None:
             banner = self.bannerClasses[i](rateups, path=path)
         else:
             banner = self.bannerClasses[i](rateups)
@@ -128,18 +133,17 @@ class MainWindowControl:
         for index,item in enumerate(rateuplist):
             poolTables = [self.ui.poolTable1, self.ui.poolTable2]
             poolTables[i].setItem(index,1,QTableWidgetItem(item[0]))
-        if i == 1 and not keep_path:
+        if i == 1:
             self.ui.pathBox.clear()
-            self.ui.pathBox.addItems([UNPATHED]+DataList.flatData(rateups[5]))
-            
+            self.ui.pathBox.addItems([UNPATHED] + DataList.flatData(rateups[5]))
 
     def saveConf(self,i):
         SavedPool(i).save(self.puller.banner.rateups)
         QMessageBox.information(self.ui, '提示', '已保存该卡池信息。')
 
     def setWpPath(self, name):
-        name = self.ui.pathBox.currentText()
         if name == self.puller.banner.get_path()[0]:
+            self.ui.pathBox.setCurrentText(name)
             return
         if name != UNPATHED:
             self.puller.banner.set_path(name)
@@ -186,8 +190,8 @@ class MainWindowControl:
             QMessageBox.Ok|QMessageBox.Cancel, QMessageBox.Ok)
         if msg == QMessageBox.Cancel:
             return
-        path = self.puller.banner.get_path()[0] if i == 1 else UNPATHED
         rateups = self.puller.banner.rateups if i != 2 else None
+        path = self.puller.banner.get_path()[0] if i == 1 else None
         self.pullers[i] = self.pullerClasses[i]()
         self.puller = self.pullers[i]
         self.setBanner(i, rateups, path)
@@ -201,7 +205,7 @@ class MainWindowControl:
         self.chart.load(QUrl('file:///web/chart.html'))
         if i == 1:
             self.setWpPath(path)
-            self.ui.pathValue.setText('0/2')
+            self.ui.pathValue.setText("0/1")
 
     def doMultiplePulls(self, count):
         table_rows = []
@@ -214,12 +218,19 @@ class MainWindowControl:
             if item.rank != 3:
                 star5count = info[2] if self.CURRTAB==2 else info[3]
                 waile = self.isNotBid(item.rank)
-                waiMark = '\t(歪)' if waile else '\t'
-                waiMark += '(非定轨)' if self.CURRTAB==1 and self.puller.info()[-1]>info[-1] else ''
+                waiMark = "\t(歪)" if waile else "\t"
                 if item.rank == 4:
                     cntMark = ''
                     color = VIOLET
-                else:
+                else:  # item.rand==5
+                    waiMark += (
+                        "(非定轨)"
+                        if self.CURRTAB == 1 and self.puller.info()[-1] > info[-1]
+                        else ""
+                    )
+                    waiMark += (
+                        "(触发明光)" if self.CURRTAB == 0 and item.islight else ""
+                    )
                     cntMark = f'[{star5count}]'+(f'[{info[-1]}]' if self.CURRTAB==1 else '')
                     color = GOLD
                     if self.CURRTAB!=2 and (info[4]==0 and info[-1]<2): #xiao bao di
@@ -234,7 +245,7 @@ class MainWindowControl:
         self.statsUpdate()
         self.outputTable.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
         if self.CURRTAB == 1:
-            self.ui.pathValue.setText('{}/2'.format(self.puller.info()[-1]))
+            self.ui.pathValue.setText("{}/1".format(self.puller.info()[-1]))
 
     def isNotBid(self, item_rank:int) -> bool:
         if self.CURRTAB == 2:
@@ -271,24 +282,6 @@ class MainWindowControl:
     def about(self):
         msg = '原神抽卡模拟器\nGenshin GachaSim\nv{}\nGithub https://github.com/JadeForest/GenshinGachaSim'.format(VERSION)
         QMessageBox.information(None, '关于', msg)
-
-    def advance(self):
-        settingWin = AdvancedSettingControl(self.custom_conf)
-        settingWin.sig.connect(self.setCustom)
-        settingWin.ui.exec_()
-
-    def setCustom(self, set_custom: bool, custom_rate):
-        self.custom_conf = (set_custom, custom_rate)
-        if set_custom:
-            UPStar5ItemCustom.set_custom_prob(custom_rate*0.01)
-            Star5ItemCustom.set_custom_prob(custom_rate*0.01)
-            custom_items = (UPStar5ItemCustom, UPStar5ItemCustom, Star5ItemCustom)
-            for i,puller in enumerate(self.pullers):
-                puller.items[5] = custom_items[i]
-        else:
-            default_items = (UPStar5Item, UPStar5Weapon, Star5Item)
-            for i,puller in enumerate(self.pullers):
-                puller.items[5] = default_items[i]
 
 
 class DialogControl(QDialog):
@@ -346,27 +339,12 @@ class WpDialogControl(DialogControl):
 
     @property
     def boxes(self):
-        return (self.ui.box51, self.ui.box52,
-                self.ui.box41, self.ui.box42, self.ui.box43, self.ui.box44, self.ui.box45)
-
-
-class AdvancedSettingControl(QDialog):
-    sig: pyqtSignal = pyqtSignal(bool,float)
-
-    def __init__(self, config: tuple) -> None:
-        super().__init__()
-        self.ui = uic.loadUi(r'ui\advanced.ui')
-        self.initUI(*config)
-
-    def initUI(self, set_custom: bool, custom_rate):
-        self.ui.buttonBox.accepted.connect(self.accept)
-
-        if set_custom:
-            self.ui.checkBox.setChecked(True)
-            self.ui.spinBox.setValue(custom_rate)
-
-    def accept(self):
-        set_custom = self.ui.checkBox.isChecked()
-        custom_rate = self.ui.spinBox.value()
-        self.sig.emit(set_custom, custom_rate)
-        self.ui.close()
+        return (
+            self.ui.box51,
+            self.ui.box52,
+            self.ui.box41,
+            self.ui.box42,
+            self.ui.box43,
+            self.ui.box44,
+            self.ui.box45,
+        )

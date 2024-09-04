@@ -402,7 +402,7 @@
                <item>
                 <widget class="QLabel" name="pathValue">
                  <property name="text">
-                  <string>0/2</string>
+                  <string>0/1</string>
                  </property>
                 </widget>
                </item>
@@ -533,13 +533,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="advBtn">
-          <property name="text">
-           <string>高级</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -572,7 +565,7 @@
            <number>1</number>
           </property>
           <property name="maximum">
-           <number>1000</number>
+           <number>10000</number>
           </property>
           <property name="value">
            <number>20</number>

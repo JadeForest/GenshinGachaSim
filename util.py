@@ -3,8 +3,7 @@ Global constant values
 Tool functions for MainWindow
 """
 
-from PyQt5.QtWidgets import QListWidget, QTableWidget
-from PyQt5.QtWidgets import QTableWidgetItem
+from PyQt5.QtWidgets import QListWidget, QTableWidget, QPushButton, QTableWidgetItem
 from PyQt5.QtGui import QColor as _QColor
 
 VERSION = "0.2.3"

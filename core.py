@@ -4,9 +4,10 @@ Core of the gacha system.
 Items, Banners, BannerPullers
 """
 import random
+from typing import Literal
 
 from data import C4, W4S, C5S, W5S, DataList
-from util import _STAR, UNPATHED, WP
+from util import _STAR, UNPATHED, WP, CH
 
 
 def get(prob: float) -> bool:
@@ -15,6 +16,7 @@ def get(prob: float) -> bool:
     rand = random.random()
     return True if rand <= 1 * prob else False
 
+# ----------------------------------- Items ---------------------------------- #
 
 class Item:
     rank = 0
@@ -92,22 +94,6 @@ class Star5Item(Item):
         return 0.006 + (pull_count - 73) * 0.06
 
 
-class CustomItem(Item):
-    custom_prob = 0.01
-
-    def __init__(self, pull_count, *args, **kwargs) -> None:
-        super().__init__(pull_count, *args, **kwargs)
-        self.prob = self.custom_prob
-
-    @classmethod
-    def set_custom_prob(cls, prob):
-        cls.custom_prob = prob
-
-
-class Star5ItemCustom(Star5Item, CustomItem):
-    pass
-
-
 class UPStar4Item(Star4Item, RateUpItem):
     pass
 
@@ -116,8 +102,10 @@ class UPStar5Item(Star5Item, RateUpItem):
     pass
 
 
-class UPStar5ItemCustom(Star5ItemCustom, RateUpItem):
-    pass
+class UPStar5Character(UPStar5Item):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.islight = False
 
 
 class UPStar4Weapon(UPStar4Item):
@@ -139,13 +127,21 @@ class UPStar5Weapon(UPStar5Item):
             return 1
         return 0.007 + (pull_count - 62) * 0.07
 
+# ---------------------------------- Banners --------------------------------- #
 
 class Banner:
     def __init__(self, *args, **kwargs) -> None:
         self.pool = {3: [("-", WP)]}
+        self.character_weapon_ratio = 0.5
 
-    def pick_item(self, rank, item):
-        item.name, item.type = random.choice(self.pool[rank])
+    def pick_item(self, rank: Literal[5, 4, 3], item: Item):
+        if rank != 3:
+            type_ = CH if get(self.character_weapon_ratio) else WP
+            item.name, item.type = random.choice(
+                [i for i in self.pool[rank] if i[1] == type_]
+            )
+        else:
+            item.name, item.type = random.choice(self.pool[rank])
         return item
 
 
@@ -158,20 +154,18 @@ class StandardBanner(Banner):
 class RateUpBanner(Banner):
     def __init__(self, rateups, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self._rateups = rateups
+        self.rateups = rateups
 
-    @property
-    def rateups(self) -> dict[int, list[tuple[str, str]]]:
-        return self._rateups
-
-    def pick_rateup(self, rank, item: RateUpItem):
+    def pick_rateup(self, rank: Literal[5, 4], item: RateUpItem) -> RateUpItem:
         if item.isup:
-            item.name, item.type = random.choice(self._rateups[rank])
+            pick = random.choice(self.rateups[rank])
         else:
-            pick = random.choice(self.pool[rank])
-            if pick in self._rateups[rank]:
-                item.isup = True
-            item.name, item.type = pick
+            if rank == 4:
+                type_ = CH if get(self.character_weapon_ratio) else WP
+                pick = random.choice([i for i in self.pool[rank] if i[1] == type_])
+            else:
+                pick = random.choice(self.pool[rank])
+        item.name, item.type = pick
         return item
 
 
@@ -179,12 +173,22 @@ class CharacterBanner(RateUpBanner):
     def __init__(self, rateups, *args, **kwargs) -> None:
         super().__init__(rateups, *args, **kwargs)
         self.pool.update(DataList(C4, W4S, C5S).data)
+        DataList.exclude(self.pool, self.rateups)
+        self.character_weapon_ratio = 0.15
+
+    def pick_rateup(self, rank, item: RateUpItem):
+        if isinstance(item, UPStar5Character) and not item.isup and get(0.1):
+            item.isup = True
+            item.islight = True
+        return super().pick_rateup(rank, item)
 
 
 class WeaponBanner(RateUpBanner):
     def __init__(self, rateups, *args, **kwargs) -> None:
         super().__init__(rateups, *args, **kwargs)
         self.pool.update(DataList(C4, W4S, W5S).data)
+        DataList.exclude(self.pool, self.rateups)
+        self.character_weapon_ratio = 0.925
         # Epitome Path
         self.reset_path()
         if 'path' in kwargs:
@@ -195,8 +199,8 @@ class WeaponBanner(RateUpBanner):
 
     def set_path(self, value: str):
         assert value in [UNPATHED] + [
-            e[0] for e in self._rateups[5]
-        ], "Not a valid Epitome Path!"
+            e[0] for e in self.rateups[5]
+        ], f"{value} is not a valid Epitome Path!"
         self._path = value
         self._path_value = 0
 
@@ -207,7 +211,7 @@ class WeaponBanner(RateUpBanner):
     def pick_rateup(self, rank, item: RateUpItem):
         item = super().pick_rateup(rank, item)
         if rank == 5:
-            if self._path_value >= 2:
+            if self._path_value >= 1:
                 item.name = self._path
                 item.isup = True
                 self._path_value = 0
@@ -217,6 +221,7 @@ class WeaponBanner(RateUpBanner):
                 )
         return item
 
+# ---------------------------------- Pullers --------------------------------- #
 
 class Puller:
     items = {5: Star5Item, 4: Star4Item, 3: Star3Item}
@@ -301,6 +306,7 @@ class RateUpPuller(Puller):
 
 class CharacterBannerPuller(RateUpPuller):
     required_banner_type = CharacterBanner
+    items = {5: UPStar5Character, 4: UPStar4Item, 3: Star3Item}
 
 
 class WeaponBannerPuller(RateUpPuller):
@@ -318,12 +324,3 @@ class WeaponBannerPuller(RateUpPuller):
         )
 
 ###=======================testrun========================###
-if __name__ == "__main__":
-    puller = StandardBannerPuller()
-    banner1 = StandardBanner()
-    Star5ItemCustom.set_custom_prob(0.1)
-    puller.items[5] = Star5ItemCustom
-    puller.set_banner(banner1)
-    for i in puller.multiple_pull(100):
-        if i[1].rank != "***":
-            print(i[0][0], "\t", i[1])
